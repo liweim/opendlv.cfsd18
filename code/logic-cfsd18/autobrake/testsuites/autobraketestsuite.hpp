@@ -20,11 +20,11 @@
 #define LOGIC_CFSD18_AUTOBRAKE_TESTSUITE_HPP
 
 #include "cxxtest/TestSuite.h"
-
+#include <opendavinci/odcore/base/module/DataTriggeredConferenceClientModule.h>
 // Include local header files.
 #include "../include/autobrake.hpp"
 
-class AutoBrakeTest : public CxxTest::TestSuite {
+class WorldTest : public CxxTest::TestSuite {
    public:
     void setUp() {}
 

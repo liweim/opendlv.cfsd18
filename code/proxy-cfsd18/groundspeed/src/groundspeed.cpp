@@ -28,11 +28,12 @@
 #include "groundspeed.hpp"
 
 namespace opendlv {
-namespace logic {
+namespace proxy {
 namespace cfsd18 {
 
 GroundSpeed::GroundSpeed(int32_t const &a_argc, char **a_argv)
-: TimeTriggeredConferenceClientModule(a_argc, a_argv, "logic-cfsd18-groundspeed")
+: TimeTriggeredConferenceClientModule(a_argc, a_argv, "proxy-cfsd18-groundspeed")
+, m_groundSpeed(100/3.6)
 {
 }
 
@@ -42,10 +43,23 @@ GroundSpeed::~GroundSpeed()
 
 void GroundSpeed::nextContainer(odcore::data::Container &/*a_container*/)
 {
-/*  if (a_container.getDataType() == opendlv::coord::KinematicState::ID()) {
-    auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
-  }
-  */
+	/*
+	odcore::base::Lock l(m_mutex);
+
+	int32_t dataType = a_container.getDataType();
+	if (dataType == opendlv::proxy::GroundSpeedReading::ID()) {
+	    auto groundSpeed = a_container.getData<opendlv::proxy::GroundSpeedReading>();*/
+	         /* auto propulsion = c.getData<opendlv::proxy::rhino::Propulsion>();
+	          const double groundSpeedKph = static_cast<double>(propulsion.getPropulsionShaftVehicleSpeed());
+	          const double groundSpeed = groundSpeedKph / 3.6;*/
+
+	          /*opendlv::proxy::GroundSpeedReading groundSpeedReading;
+	          groundSpeedReading.setGroundSpeed(groundSpeed);
+
+	          Container groundSpeedReadingContainer = Container(groundSpeedReading);
+	          getConference().send(groundSpeedReadingContainer);
+  }*/
+  
 }
 
 odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode GroundSpeed::body()
@@ -55,6 +69,13 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode GroundSpeed::body()
 
 //      Eigen::AngleAxisd deltaRollAngle(deltaRoll, Eigen::Vector3d::UnitX());
 
+  	double groundSpeed = m_groundSpeed;
+  	opendlv::proxy::GroundSpeedReading groundSpeedReading;
+	groundSpeedReading.setGroundSpeed(groundSpeed);
+
+	odcore::data::Container groundSpeedReadingContainer(groundSpeedReading);
+	getConference().send(groundSpeedReadingContainer);
+
   }
   return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
 }
@@ -62,7 +83,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode GroundSpeed::body()
 void GroundSpeed::setUp()
 {
   std::string const name = getKeyValueConfiguration().getValue<std::string>(
-        "logic-cfsd18-groundspeed.name");
+        "proxy-cfsd18-groundspeed.name");
 
   if (isVerbose()) {
     std::cout << "Name: " << name << std::endl;

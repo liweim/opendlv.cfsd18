@@ -22,9 +22,11 @@
 
 #include <map>
 
-#include <opendavinci/odcore/base/module/TimeTriggeredConferenceClientModule.h>
+
+#include <opendavinci/odcore/base/module/DataTriggeredConferenceClientModule.h>
 #include <opendavinci/odcore/base/Mutex.h>
 #include <opendavinci/odcore/data/Container.h>
+
 
 #include <odvdopendlvstandardmessageset/GeneratedHeaders_ODVDOpenDLVStandardMessageSet.h>
 
@@ -32,7 +34,7 @@ namespace opendlv {
 namespace logic {
 namespace cfsd18 {
 
-class AutoBrake : public odcore::base::module::TimeTriggeredConferenceClientModule {
+class AutoBrake : public odcore::base::module::DataTriggeredConferenceClientModule {
  public:
   AutoBrake(int32_t const &, char **);
   AutoBrake(AutoBrake const &) = delete;
@@ -41,9 +43,16 @@ class AutoBrake : public odcore::base::module::TimeTriggeredConferenceClientModu
   virtual void nextContainer(odcore::data::Container &);
 
  private:
-  odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
+  //odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
   void setUp();
   void tearDown();
+
+  void TriggerAutobrake(double vehicleSpeed);
+
+  double m_speedThreshold;
+  double m_groundSpeed;
+  float const positiveAutobrakeAcceleration;
+  float const negativeAutobrakeAcceleration;
 };
 
 }

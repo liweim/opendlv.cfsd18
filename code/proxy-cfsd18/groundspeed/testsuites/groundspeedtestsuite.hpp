@@ -16,9 +16,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "groundspeed.hpp"
+#ifndef PROXY_CFSD18_GROUNDSPEED_TESTSUITE_HPP
+#define PROXY_CFSD18_GROUNDSPEED_TESTSUITE_HPP
 
-int32_t main(int32_t argc, char **argv) {
-  opendlv::logic::cfsd18::GroundSpeed app(argc, argv);
-  return app.runModule();
-}
+#include "cxxtest/TestSuite.h"
+
+// Include local header files.
+#include "../include/groundspeed.hpp"
+
+class WorldTest : public CxxTest::TestSuite {
+   public:
+    void setUp() {}
+
+    void tearDown() {}
+
+    void testApplication() {
+        TS_ASSERT(true);
+    }
+};
+
+#endif

@@ -17,8 +17,8 @@
  * USA.
  */
 
-#ifndef LOGIC_CFSD18_GROUNDSPEED_GROUNDSPEED_HPP
-#define LOGIC_CFSD18_GROUNDSPEED_GROUNDSPEED_HPP
+#ifndef PROXY_CFSD18_FLOWBEND_FLOWBEND_HPP
+#define PROXY_CFSD18_FLOWBEND_FLOWBEND_HPP
 
 #include <map>
 
@@ -29,7 +29,7 @@
 #include <odvdopendlvstandardmessageset/GeneratedHeaders_ODVDOpenDLVStandardMessageSet.h>
 
 namespace opendlv {
-namespace logic {
+namespace proxy {
 namespace cfsd18 {
 
 class GroundSpeed : public odcore::base::module::TimeTriggeredConferenceClientModule {
@@ -44,6 +44,8 @@ class GroundSpeed : public odcore::base::module::TimeTriggeredConferenceClientMo
   odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
   void setUp();
   void tearDown();
+
+  double m_groundSpeed;
 };
 
 }

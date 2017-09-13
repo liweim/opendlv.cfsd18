@@ -25,6 +25,13 @@
 #include <opendavinci/odcore/strings/StringToolbox.h>
 #include <opendavinci/odcore/wrapper/Eigen.h>
 
+
+#include <odvdopendlvstandardmessageset/GeneratedHeaders_ODVDOpenDLVStandardMessageSet.h>
+#include <odvdopendlvdata/GeneratedHeaders_ODVDOpenDLVData.h>
+
+
+
+
 #include "autobrake.hpp"
 
 namespace opendlv {
@@ -32,7 +39,11 @@ namespace logic {
 namespace cfsd18 {
 
 AutoBrake::AutoBrake(int32_t const &a_argc, char **a_argv)
-: TimeTriggeredConferenceClientModule(a_argc, a_argv, "logic-cfsd18-autobrake")
+: DataTriggeredConferenceClientModule(a_argc, a_argv, "logic-cfsd18-autobrake")
+, m_speedThreshold(80/3.6)
+, m_groundSpeed()
+, positiveAutobrakeAcceleration(2)
+, negativeAutobrakeAcceleration(-2)
 {
 }
 
@@ -40,15 +51,21 @@ AutoBrake::~AutoBrake()
 {
 }
 
-void AutoBrake::nextContainer(odcore::data::Container &/*a_container*/)
+void AutoBrake::nextContainer(odcore::data::Container &a_container)
 {
-/*  if (a_container.getDataType() == opendlv::coord::KinematicState::ID()) {
-    auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
+  int32_t dataType = a_container.getDataType();
+  if (dataType == opendlv::proxy::GroundSpeedReading::ID()) {
+          auto groundSpeedReading = a_container.getData<opendlv::proxy::GroundSpeedReading>(); 
+          
+          const double groundSpeedKph = static_cast<double>(groundSpeedReading.getGroundSpeed());
+          m_groundSpeed = groundSpeedKph / 3.6;
+
+          TriggerAutobrake(m_groundSpeed);
   }
-  */
+
 }
 
-odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode AutoBrake::body()
+/*odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode AutoBrake::body()
 {
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() ==
       odcore::data::dmcp::ModuleStateMessage::RUNNING) {
@@ -58,7 +75,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode AutoBrake::body()
   }
   return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
 }
-
+*/
 void AutoBrake::setUp()
 {
   std::string const name = getKeyValueConfiguration().getValue<std::string>(
@@ -71,6 +88,34 @@ void AutoBrake::setUp()
 
 void AutoBrake::tearDown()
 {
+}
+
+void AutoBrake::TriggerAutobrake(double vehicleSpeed)
+{
+  
+  if (vehicleSpeed >= m_speedThreshold) {
+    float autobrakeAcceleration = negativeAutobrakeAcceleration;
+    opendlv::proxy::ActuationRequest actuationRequest;
+    actuationRequest.setAcceleration(autobrakeAcceleration);
+    actuationRequest.setIsValid(1);
+
+    odcore::data::Container actuationRequestContainer(actuationRequest);
+    getConference().send(actuationRequestContainer);
+
+  }
+  else
+  {
+    float autobrakeAcceleration = positiveAutobrakeAcceleration;
+    opendlv::proxy::ActuationRequest actuationRequest;
+    actuationRequest.setAcceleration(autobrakeAcceleration);
+    actuationRequest.setIsValid(1);
+
+    odcore::data::Container actuationRequestContainer(actuationRequest);
+    getConference().send(actuationRequestContainer);
+
+  }
+  
+          
 }
 
 }
